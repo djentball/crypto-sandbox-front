@@ -1,0 +1,19 @@
+.reload-button.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: 1px solid transparent; 
+    cursor: pointer;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.reload-button.button:hover{
+    border: 1px solid #4cbfc0;
+}
+
+.reload-button.button:focus{
+    transform: rotate(90deg);
+    transition: 2s;
+}
