@@ -1,0 +1,42 @@
+.base-price-container {
+  display: flex;
+  gap: 10px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.base-price.button,
+.base-price.input {
+  height: 40px;
+  font-size: 16px;
+  padding: 0 12px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.base-price.input {
+  flex: 1;
+}
+
+.base-price.input:focus {
+  border-color: #4cbfc0;
+  outline: none;
+}
+
+.base-price.button {
+  background-color: #4cbfc0;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.base-price.button:hover:enabled {
+  background-color: #189597;
+}
+
+.base-price.button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
