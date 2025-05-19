@@ -77,10 +77,11 @@ const BasePriceSetter = () => {
         >
           Надіслати
         </button>
+        
       </div>
-      <div>
-        Base price: {currentBasePrice !== null ? currentBasePrice : "Завантаження..."}
-      </div>
+      <div className="base-price-info">
+      Base price BTC: {currentBasePrice !== null ? currentBasePrice : "Завантаження..."}
+    </div>
     </>
   );
 };

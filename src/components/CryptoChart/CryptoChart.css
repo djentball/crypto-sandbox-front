@@ -1,12 +1,15 @@
 .reload-button.button {
     display: flex;
     justify-content: center;
+    position: absolute;
+    right: 11.5%;
     align-items: center;
     background-color: transparent;
     border: 1px solid transparent; 
     cursor: pointer;
     padding: 0;
     box-sizing: border-box;
+    z-index: 1;
 }
 
 .reload-button.button:hover{
@@ -16,4 +19,8 @@
 .reload-button.button:focus{
     transform: rotate(90deg);
     transition: 2s;
+}
+
+canvas {
+    position: relative;
 }

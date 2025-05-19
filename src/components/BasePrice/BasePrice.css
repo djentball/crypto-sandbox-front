@@ -40,3 +40,12 @@
   background-color: #aaa;
   cursor: not-allowed;
 }
+
+.base-price-info {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.reload-button {
+  align-items: center;
+}

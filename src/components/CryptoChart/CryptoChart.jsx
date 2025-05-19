@@ -55,7 +55,7 @@ const CryptoChart = () => {
 
   const handleReload = () => {
     setLoading(true);
-    axios.post('https://api-aio.alwaysdata.net/crypto/binance/import?symbol=BTCUSDT&interval=5m&limit=50')
+    axios.post('https://api-aio.alwaysdata.net/crypto/binance/import?symbol=BTCUSDT&interval=1h&limit=50')
       .then(() => {
         fetchChartData();
       })
@@ -96,7 +96,7 @@ const CryptoChart = () => {
   };  
 
   return (
-    <div>
+    <div className='chart'>
       <h2>Графік ціни BTC/USDT</h2>
       <button className='reload-button button' onClick={handleReload} disabled={loading}>
       {loading ? 'Оновлення...' : <img src={reloadIcon} alt="Reload" width={24} height={24} />}
