@@ -4,6 +4,7 @@ import './BasePrice.css';
 const BasePriceSetter = () => {
   const [price, setPrice] = useState("");
   const [currentBasePrice, setCurrentBasePrice] = useState(null);
+  const [currentBalance, setBalance] = useState(null);
 
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -56,8 +57,26 @@ const BasePriceSetter = () => {
     }
   };
 
+  const fetchBalance = async () => {
+    try {
+      const response = await fetch("https://api-aio.alwaysdata.net/crypto/users/dbfb7742-7cc2-4ddf-8dff-fed0e75ad352/balance");
+  
+      if (!response.ok) {
+        throw new Error("Помилка при відправці запиту");
+      }
+  
+      const data = await response.json();
+      setBalance(data['total_balance_usd']);
+  
+    } catch (error) {
+      console.error("Помилка при отриманні балансу:", error);
+      setBalance(null);
+    }
+  };
+
   useEffect(() => {
     fetchBasePrice();
+    fetchBalance();
   }, []);
 
   return (
@@ -79,8 +98,13 @@ const BasePriceSetter = () => {
         </button>
         
       </div>
-      <div className="base-price-info">
+      <div className="info">
+      <div className="base-price-btc">
       Base price BTC: {currentBasePrice !== null ? currentBasePrice : "Завантаження..."}
+    </div>
+    <div className="balance">
+      Balance: {currentBalance !== null ? currentBalance : "Завантаження..."}
+    </div>
     </div>
     </>
   );

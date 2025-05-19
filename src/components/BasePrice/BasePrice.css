@@ -15,9 +15,6 @@
   box-sizing: border-box;
 }
 
-.base-price.input {
-  flex: 1;
-}
 
 .base-price.input:focus {
   border-color: #4cbfc0;
@@ -41,11 +38,26 @@
   cursor: not-allowed;
 }
 
-.base-price-info {
-  text-align: center;
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   margin-top: 20px;
 }
 
 .reload-button {
   align-items: center;
+}
+
+@media (max-width: 1000px){
+  .base-price-container {
+    flex-direction: column;
+    width: 100%;
+    max-width: none;
+  }
+  .base-price-container > div {
+    width: 100%;
+  }
+
 }
