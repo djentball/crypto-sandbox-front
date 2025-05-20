@@ -83,6 +83,10 @@ button:focus-visible {
   height: 50%;
 }
 
+h2 {
+  padding-inline: 9px;
+}
+
 @media (max-width: 768px){
   .App {
     width: 100%;
@@ -92,4 +96,6 @@ button:focus-visible {
   h2 {
     text-align: center;
   }
+
+  
 }

@@ -28,6 +28,7 @@
 .chart-controls {
     display: flex;
     align-items: center;
+    padding-inline: 9px;
 }
 
 .chart-controls select {
