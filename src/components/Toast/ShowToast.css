@@ -1,0 +1,7 @@
+.error-toast .Toastify__progress-bar {
+  background: #ec1f2b;
+}
+
+.success-toast .Toastify__progress-bar {
+  /* background: #ec1f2b !important; */
+}

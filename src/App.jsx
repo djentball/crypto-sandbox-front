@@ -1,6 +1,7 @@
 import React from 'react';
 import CryptoChart from './components/CryptoChart/CryptoChart';
 import BasePrice from './components/BasePrice/BasePrice';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <CryptoChart />
       <div className='base-price'>
         <BasePrice />
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </div>
   );
