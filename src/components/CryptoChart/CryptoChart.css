@@ -24,3 +24,16 @@
 .chart {
     position: relative;
 }
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+}
+
+.chart-controls select {
+    height: 30px;
+    width: 120px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+}

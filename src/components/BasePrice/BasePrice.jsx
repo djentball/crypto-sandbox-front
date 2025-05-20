@@ -1,56 +1,106 @@
 import React, { useState, useEffect } from "react";
 import './BasePrice.css';
 
+const API_URL = import.meta.env.VITE_API_URL;
+const USER_ID = import.meta.env.VITE_USER_ID;
+
 const BasePriceSetter = () => {
   const [price, setPrice] = useState("");
+  const [buyAmount, setBuyAmount] = useState("");
+  const [sellAmount, setSellAmount] = useState("");
   const [currentBasePrice, setCurrentBasePrice] = useState(null);
   const [currentBalance, setBalance] = useState(null);
 
-  const handleInputChange = (e) => {
+  const symbol = "BTCUSDT";
+
+  const handlePriceChange = (e) => {
     const value = e.target.value;
     if (/^\d*\.?\d*$/.test(value)) {
       setPrice(value);
     }
   };
 
-  const handleSubmit = async () => {
+  const handleBuyAmountChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setBuyAmount(value);
+    }
+  };
+
+  const handleSellAmountChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setSellAmount(value);
+    }
+  };
+
+  const handleSubmitBasePrice = async () => {
     if (price === "") return;
-
     try {
-      const response = await fetch("https://api-aio.alwaysdata.net/crypto/trade/base-price", {
+      const response = await fetch(`${API_URL}/trade/base-price`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          symbol: "BTCUSDT",
-          price: parseFloat(price),
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol, price: parseFloat(price) }),
       });
-
-      if (!response.ok) {
-        throw new Error("Помилка при відправці запиту");
-      }
-
+      if (!response.ok) throw new Error("Помилка при відправці базової ціни");
       setPrice("");
-      await fetchBasePrice(); // оновити базову ціну після відправки
-
+      await fetchBasePrice();
     } catch (error) {
       console.error("Помилка:", error);
     }
   };
 
+  const handleBuy = async () => {
+    if (buyAmount === "") return;
+    try {
+      const response = await fetch(`${API_URL}/trade/buy`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol, amount: parseFloat(buyAmount), user_id: USER_ID }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(`❌ Помилка покупки: ${data.detail || "Невідома помилка"}`);
+      } else {
+        alert(`✅ Куплено ${buyAmount} ${symbol} на ${data.total_cost} USD`);
+        setBuyAmount("");
+        await fetchBalance();
+      }
+    } catch (error) {
+      console.error("Помилка при купівлі:", error);
+    }
+  };
+
+  const handleSell = async () => {
+    if (sellAmount === "") return;
+    try {
+      const response = await fetch(`${API_URL}/trade/sell`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol, amount: parseFloat(sellAmount), user_id: USER_ID }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(`❌ Помилка продажу: ${data.detail || "Невідома помилка"}`);
+      } else {
+        alert(`✅ Продано ${sellAmount} ${symbol}`);
+        setSellAmount("");
+        await fetchBalance();
+      }
+    } catch (error) {
+      console.error("Помилка при продажу:", error);
+    }
+  };
+
   const fetchBasePrice = async () => {
     try {
-      const response = await fetch("https://api-aio.alwaysdata.net/crypto/trade/base-price/btcusdt");
-  
-      if (!response.ok) {
-        throw new Error("Помилка при відправці запиту");
-      }
-  
+      const response = await fetch(`${API_URL}/trade/base-price/${symbol.toLowerCase()}`);
       const data = await response.json();
       setCurrentBasePrice(data['price']);
-  
     } catch (error) {
       console.error("Помилка при отриманні базової ціни:", error);
       setCurrentBasePrice(null);
@@ -59,15 +109,9 @@ const BasePriceSetter = () => {
 
   const fetchBalance = async () => {
     try {
-      const response = await fetch("https://api-aio.alwaysdata.net/crypto/users/dbfb7742-7cc2-4ddf-8dff-fed0e75ad352/balance");
-  
-      if (!response.ok) {
-        throw new Error("Помилка при відправці запиту");
-      }
-  
+      const response = await fetch(`${API_URL}/users/${USER_ID}/balance`);
       const data = await response.json();
       setBalance(data['total_balance_usd']);
-  
     } catch (error) {
       console.error("Помилка при отриманні балансу:", error);
       setBalance(null);
@@ -85,27 +129,51 @@ const BasePriceSetter = () => {
         <input
           type="text"
           value={price}
-          onChange={handleInputChange}
-          placeholder="Введіть ціну"
+          onChange={handlePriceChange}
+          placeholder="Введіть базову ціну"
           className="base-price input"
         />
         <button
-          onClick={handleSubmit}
+          onClick={handleSubmitBasePrice}
           disabled={price === ""}
           className="base-price button"
         >
-          Надіслати
+          Встановити ціну
         </button>
-        
       </div>
+
+      <div className="trade-container">
+        <div className="trade-box">
+          <input
+            type="text"
+            value={buyAmount}
+            onChange={handleBuyAmountChange}
+            placeholder="Кількість для купівлі"
+            className="base-price input"
+          />
+          <button onClick={handleBuy} className="base-price button" disabled={buyAmount === ""}>Купити</button>
+        </div>
+
+        <div className="trade-box">
+          <input
+            type="text"
+            value={sellAmount}
+            onChange={handleSellAmountChange}
+            placeholder="Кількість для продажу"
+            className="base-price input"
+          />
+          <button onClick={handleSell} className="base-price button" disabled={sellAmount === ""}>Продати</button>
+        </div>
+      </div>
+
       <div className="info">
-      <div className="base-price-btc">
-      Base price BTC: {currentBasePrice !== null ? currentBasePrice : "Завантаження..."}
-    </div>
-    <div className="balance">
-      Balance: {currentBalance !== null ? currentBalance : "Завантаження..."}
-    </div>
-    </div>
+        <div className="base-price-btc">
+          Base price BTC: {currentBasePrice !== null ? currentBasePrice : "Завантаження..."}
+        </div>
+        <div className="balance">
+          Balance: {currentBalance !== null ? currentBalance : "Завантаження..."}
+        </div>
+      </div>
     </>
   );
 };

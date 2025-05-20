@@ -1,8 +1,15 @@
+div.base-price {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .base-price-container {
   display: flex;
   gap: 10px;
   max-width: 400px;
-  margin: 20px auto;
+  padding-block: 20px 10px;
 }
 
 .base-price.button,
@@ -22,6 +29,8 @@
 }
 
 .base-price.button {
+  text-align: center;
+  width: 7rem;
   background-color: #4cbfc0;
   color: white;
   border: none;
@@ -48,6 +57,13 @@
 
 .reload-button {
   align-items: center;
+}
+
+
+.trade-box {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 10px;
 }
 
 @media (max-width: 1000px){
