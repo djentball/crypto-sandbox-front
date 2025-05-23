@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './BasePrice.css';
-import 'react-toastify/dist/ReactToastify.css';
 import {showErrorToast, showSuccessToast} from '../Toast/ShowToast'
+import { useSymbol } from '../../context/SymbolContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const USER_ID = import.meta.env.VITE_USER_ID;
@@ -12,8 +12,8 @@ const BasePriceSetter = () => {
   const [sellAmount, setSellAmount] = useState("");
   const [currentBasePrice, setCurrentBasePrice] = useState(null);
   const [currentBalance, setBalance] = useState(null);
-
-  const symbol = "BTCUSDT";
+  const { selectedSymbol } = useSymbol();
+  // const symbol = "BTCUSDT";
 
   const handlePriceChange = (e) => {
     const value = e.target.value;
@@ -42,7 +42,7 @@ const BasePriceSetter = () => {
       const response = await fetch(`${API_URL}/trade/base-price`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol, price: parseFloat(price) }),
+        body: JSON.stringify({ symbol: selectedSymbol, price: parseFloat(price) }),
       });
       if (!response.ok) throw new Error("Помилка при відправці базової ціни");
       setPrice("");
@@ -60,7 +60,7 @@ const BasePriceSetter = () => {
       const response = await fetch(`${API_URL}/trade/buy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol, quantity: parseFloat(buyAmount), user_id: USER_ID }),
+        body: JSON.stringify({ symbol: selectedSymbol, quantity: parseFloat(buyAmount), user_id: USER_ID }),
       });
 
       const data = await response.json();
@@ -72,7 +72,7 @@ const BasePriceSetter = () => {
             : JSON.stringify(data.detail, null, 2);
         showErrorToast(`Помилка покупки: ${message}`);
       } else {
-        showSuccessToast(`Куплено ${buyAmount} ${symbol} на ${data.total_cost} USD`);
+        showSuccessToast(`Куплено ${buyAmount} ${selectedSymbol} на ${data.total_cost} USD`);
         setBuyAmount("");
         await fetchBalance();
       }
@@ -88,7 +88,7 @@ const BasePriceSetter = () => {
       const response = await fetch(`${API_URL}/trade/sell`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol, quantity: parseFloat(sellAmount), user_id: USER_ID }),
+        body: JSON.stringify({ symbol: selectedSymbol, quantity: parseFloat(sellAmount), user_id: USER_ID }),
       });
 
       const data = await response.json();
@@ -100,7 +100,7 @@ const BasePriceSetter = () => {
             : JSON.stringify(data.detail, null, 2);
             showErrorToast(`Помилка продажу: ${message}`);
       } else {
-        showSuccessToast(`Продано ${sellAmount} ${symbol}`);
+        showSuccessToast(`Продано ${sellAmount} ${selectedSymbol}`);
         setSellAmount("");
         await fetchBalance();
       }
@@ -112,7 +112,7 @@ const BasePriceSetter = () => {
 
   const fetchBasePrice = async () => {
     try {
-      const response = await fetch(`${API_URL}/trade/base-price/${symbol.toLowerCase()}`);
+      const response = await fetch(`${API_URL}/trade/base-price/${selectedSymbol.toLowerCase()}`);
       const data = await response.json();
       setCurrentBasePrice(data['price']);
     } catch (error) {
@@ -135,7 +135,7 @@ const BasePriceSetter = () => {
   useEffect(() => {
     fetchBasePrice();
     fetchBalance();
-  }, []);
+  }, [selectedSymbol]);
 
   return (
     <>
@@ -182,7 +182,7 @@ const BasePriceSetter = () => {
 
       <div className="info">
         <div className="base-price-btc">
-          Base price BTC: {currentBasePrice !== null ? currentBasePrice : "Завантаження..."}
+          Base price {selectedSymbol}: {currentBasePrice !== null ? currentBasePrice : "Завантаження..."}
         </div>
         <div className="balance">
           Balance: {currentBalance !== null ? currentBalance : "Завантаження..."}

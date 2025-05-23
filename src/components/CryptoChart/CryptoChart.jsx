@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import reloadIcon from '../../assets/reload.svg';
 import './CryptoChart.css';
+import { useSymbol } from '../../context/SymbolContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,7 +19,6 @@ import 'chartjs-adapter-date-fns';
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Tooltip, Legend, TimeScale);
 
 const API_URL = import.meta.env.VITE_API_URL;
-const USER_ID = import.meta.env.VITE_USER_ID;
 
 const CRYPTOS = [
   { label: 'Bitcoin (BTC)', symbol: 'BTCUSDT' },
@@ -29,7 +29,9 @@ const CRYPTOS = [
 const CryptoChart = () => {
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selectedSymbol, setSelectedSymbol] = useState('BTCUSDT');
+  // const [selectedSymbol, setSelectedSymbol] = useState('BTCUSDT');
+  const { selectedSymbol, setSelectedSymbol } = useSymbol();
+  
 
   const fetchChartData = async (symbol) => {
     setLoading(true);
@@ -99,7 +101,6 @@ const CryptoChart = () => {
           stepSize: 5,
           tooltipFormat: 'yyyy-MM-dd HH:mm',
           displayFormats: {
-            // minute: 'HH:mm',
             hour: 'HH'
           }
         }
