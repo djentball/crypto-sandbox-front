@@ -194,7 +194,7 @@ const BasePriceSetter = () => {
           Balance: {currentBalance !== null ? currentBalance : "Завантаження..."}
         </div>
         <div className="crypto-balance">
-          Balance {selectedSymbol}: {cryptoBalances[selectedSymbol]?.amount ?? "Завантаження..."}
+          Balance {selectedSymbol}: {cryptoBalances[selectedSymbol]?.amount ?? "0"}
         </div>
       </div>
     </>
