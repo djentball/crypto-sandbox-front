@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import './BasePrice.css';
-import {showErrorToast, showSuccessToast} from '../Toast/ShowToast'
+import { showErrorToast, showSuccessToast } from '../Toast/ShowToast';
 import { useSymbol } from '../../context/SymbolContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -13,7 +13,13 @@ const BasePriceSetter = () => {
   const [currentBasePrice, setCurrentBasePrice] = useState(null);
   const [currentBalance, setBalance] = useState(null);
   const { selectedSymbol } = useSymbol();
-  // const symbol = "BTCUSDT";
+  const [cryptoBalances, setCryptoBalances] = useState({});
+
+  useEffect(() => {
+    if (!selectedSymbol) return;
+    fetchBasePrice();
+    fetchBalance();
+  }, [selectedSymbol]);
 
   const handlePriceChange = (e) => {
     const value = e.target.value;
@@ -37,12 +43,13 @@ const BasePriceSetter = () => {
   };
 
   const handleSubmitBasePrice = async () => {
-    if (price === "") return;
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice)) return;
     try {
       const response = await fetch(`${API_URL}/trade/base-price`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: selectedSymbol, price: parseFloat(price) }),
+        body: JSON.stringify({ symbol: selectedSymbol, price: parsedPrice }),
       });
       if (!response.ok) throw new Error("Помилка при відправці базової ціни");
       setPrice("");
@@ -55,12 +62,13 @@ const BasePriceSetter = () => {
   };
 
   const handleBuy = async () => {
-    if (buyAmount === "") return;
+    const quantity = parseFloat(buyAmount);
+    if (isNaN(quantity) || quantity <= 0) return;
     try {
       const response = await fetch(`${API_URL}/trade/buy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: selectedSymbol, quantity: parseFloat(buyAmount), user_id: USER_ID }),
+        body: JSON.stringify({ symbol: selectedSymbol, quantity, user_id: USER_ID }),
       });
 
       const data = await response.json();
@@ -83,12 +91,13 @@ const BasePriceSetter = () => {
   };
 
   const handleSell = async () => {
-    if (sellAmount === "") return;
+    const quantity = parseFloat(sellAmount);
+    if (isNaN(quantity) || quantity <= 0) return;
     try {
       const response = await fetch(`${API_URL}/trade/sell`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: selectedSymbol, quantity: parseFloat(sellAmount), user_id: USER_ID }),
+        body: JSON.stringify({ symbol: selectedSymbol, quantity, user_id: USER_ID }),
       });
 
       const data = await response.json();
@@ -98,7 +107,7 @@ const BasePriceSetter = () => {
           typeof data.detail === "string"
             ? data.detail
             : JSON.stringify(data.detail, null, 2);
-            showErrorToast(`Помилка продажу: ${message}`);
+        showErrorToast(`Помилка продажу: ${message}`);
       } else {
         showSuccessToast(`Продано ${sellAmount} ${selectedSymbol}`);
         setSellAmount("");
@@ -126,16 +135,13 @@ const BasePriceSetter = () => {
       const response = await fetch(`${API_URL}/users/${USER_ID}/balance`);
       const data = await response.json();
       setBalance(data['total_balance_usd']);
+      setCryptoBalances(data['crypto']);
     } catch (error) {
       console.error("Помилка при отриманні балансу:", error);
       setBalance(null);
+      setCryptoBalances({});
     }
   };
-
-  useEffect(() => {
-    fetchBasePrice();
-    fetchBalance();
-  }, [selectedSymbol]);
 
   return (
     <>
@@ -186,6 +192,9 @@ const BasePriceSetter = () => {
         </div>
         <div className="balance">
           Balance: {currentBalance !== null ? currentBalance : "Завантаження..."}
+        </div>
+        <div className="crypto-balance">
+          Balance {selectedSymbol}: {cryptoBalances[selectedSymbol]?.amount ?? "Завантаження..."}
         </div>
       </div>
     </>
