@@ -12,13 +12,16 @@ const BasePriceSetter = () => {
   const [sellAmount, setSellAmount] = useState("");
   const [currentBasePrice, setCurrentBasePrice] = useState(null);
   const [currentBalance, setBalance] = useState(null);
+  const [currentPrice, setCurrentPrice] = useState(null);
   const { selectedSymbol } = useSymbol();
   const [cryptoBalances, setCryptoBalances] = useState({});
+  
 
   useEffect(() => {
     if (!selectedSymbol) return;
     fetchBasePrice();
     fetchBalance();
+    fetchCurrentPrice();
   }, [selectedSymbol]);
 
   const handlePriceChange = (e) => {
@@ -143,6 +146,23 @@ const BasePriceSetter = () => {
     }
   };
 
+  const fetchCurrentPrice = async () => {
+    try {
+      const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${selectedSymbol}`);
+      const data = await response.json();
+      const formattedPrice = Number(data.price).toLocaleString("uk-UA", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+      setCurrentPrice(formattedPrice);
+    } catch (error) {
+      console.error("Помилка при отриманні поточної ціни:", error);
+      setCurrentPrice(null);
+    }
+  };
+  
+  
+
   return (
     <>
       <div className="base-price-container">
@@ -187,7 +207,10 @@ const BasePriceSetter = () => {
       </div>
 
       <div className="info">
-        <div className="base-price-btc">
+        <div className="current-price">
+          Current price {selectedSymbol}: {currentPrice !== null ? currentPrice : "Завантаження..."}
+        </div>
+        <div className="base-price-crypto">
           Base price {selectedSymbol}: {currentBasePrice !== null ? currentBasePrice : "Завантаження..."}
         </div>
         <div className="balance">
