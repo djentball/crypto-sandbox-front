@@ -4,7 +4,6 @@ import { showErrorToast, showSuccessToast } from '../Toast/ShowToast';
 import { useSymbol } from '../../context/SymbolContext';
 
 const API_URL = import.meta.env.VITE_API_URL;
-const USER_ID = import.meta.env.VITE_USER_ID;
 
 const BasePriceSetter = () => {
   const [price, setPrice] = useState("");
@@ -15,14 +14,36 @@ const BasePriceSetter = () => {
   const [currentPrice, setCurrentPrice] = useState(null);
   const { selectedSymbol } = useSymbol();
   const [cryptoBalances, setCryptoBalances] = useState({});
-  
+
+  const [users, setUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState("");
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    if (selectedUserId && selectedSymbol) {
+      fetchBalance();
+    }
+  }, [selectedUserId, selectedSymbol]);
 
   useEffect(() => {
     if (!selectedSymbol) return;
     fetchBasePrice();
-    fetchBalance();
     fetchCurrentPrice();
   }, [selectedSymbol]);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(`${API_URL}/users`);
+      const data = await response.json();
+      setUsers(data);
+      if (data.length > 0) setSelectedUserId(data[0].id);
+    } catch (error) {
+      console.error("Помилка при отриманні юзерів:", error);
+    }
+  };
 
   const handlePriceChange = (e) => {
     const value = e.target.value;
@@ -66,12 +87,12 @@ const BasePriceSetter = () => {
 
   const handleBuy = async () => {
     const quantity = parseFloat(buyAmount);
-    if (isNaN(quantity) || quantity <= 0) return;
+    if (isNaN(quantity) || quantity <= 0 || !selectedUserId) return;
     try {
       const response = await fetch(`${API_URL}/trade/buy`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: selectedSymbol, quantity, user_id: USER_ID }),
+        body: JSON.stringify({ symbol: selectedSymbol, quantity, user_id: selectedUserId }),
       });
 
       const data = await response.json();
@@ -95,12 +116,12 @@ const BasePriceSetter = () => {
 
   const handleSell = async () => {
     const quantity = parseFloat(sellAmount);
-    if (isNaN(quantity) || quantity <= 0) return;
+    if (isNaN(quantity) || quantity <= 0 || !selectedUserId) return;
     try {
       const response = await fetch(`${API_URL}/trade/sell`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol: selectedSymbol, quantity, user_id: USER_ID }),
+        body: JSON.stringify({ symbol: selectedSymbol, quantity, user_id: selectedUserId }),
       });
 
       const data = await response.json();
@@ -135,7 +156,7 @@ const BasePriceSetter = () => {
 
   const fetchBalance = async () => {
     try {
-      const response = await fetch(`${API_URL}/users/${USER_ID}/balance`);
+      const response = await fetch(`${API_URL}/users/${selectedUserId}/balance`);
       const data = await response.json();
       setBalance(data['total_balance_usd']);
       setCryptoBalances(data['crypto']);
@@ -160,11 +181,25 @@ const BasePriceSetter = () => {
       setCurrentPrice(null);
     }
   };
-  
-  
 
   return (
     <>
+      <div className="user-select-container">
+        <label htmlFor="user-select">Оберіть користувача: </label>
+        <select
+          id="user-select"
+          value={selectedUserId}
+          onChange={(e) => setSelectedUserId(e.target.value)}
+          className="user-select"
+        >
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.name} ({user.usd_balance.toFixed(2)} USD)
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="base-price-container">
         <input
           type="text"
